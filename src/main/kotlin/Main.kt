@@ -9,24 +9,26 @@ import org.example.Service.*
 fun main() {
 
     // Conexión a la base de datos
-    val conexion = Conexion()
-    val mongoClient = conexion.mongoClient
-    val database = mongoClient.getDatabase(conexion.databaseName)
+    val conexion = Conexion()  // Crea una instancia de la clase Conexion
+    val mongoClient = conexion.mongoClient  // Obtiene el cliente de MongoDB
+    val database = mongoClient.getDatabase(conexion.databaseName)  // Obtiene la base de datos
 
+    // Inicialización de los repositorios
     val usuarioRepository = UsuarioRepository(database)
     val noticiaRepository = NoticiaRepository(database)
     val comentariosRepository = ComentariosRepository(database)
 
-    // Servicios
+    // Creación de servicios, inyectando los repositorios
     val usuarioService = UsuarioService(usuarioRepository)
     val noticiaService = NoticiaService(noticiaRepository, usuarioRepository)
     val comentarioService = ComentariosService(comentariosRepository)
 
-    // Datos del administrador
+    // Credenciales del administrador
     val adminCorreo = "pruebaadmin@admin.com"
     val adminContrasena = "admin"
 
     while (true) {
+
         println("Seleccione una opción:")
         println("1. Registrar Usuarios")
         println("2. Publicar Noticias")
@@ -48,7 +50,7 @@ fun main() {
                 println("Ingrese el nick de usuario:")
                 val nick = readln()
 
-                // Teléfonos
+                // Captura de números de teléfono en una lista
                 val telefonos = mutableListOf<String>()
                 while (true) {
                     println("Ingrese un teléfono (o 'fin' para terminar):")
@@ -57,7 +59,7 @@ fun main() {
                     telefonos.add(telefono)
                 }
 
-                // Dirección
+                // Captura de la dirección del usuario
                 println("Ingrese el nombre de la calle:")
                 val calle = readln()
                 println("Ingrese el número de la calle:")
@@ -68,6 +70,7 @@ fun main() {
                 val ciudad = readln()
                 val direccion = Direccion(calle, num, cp, ciudad)
 
+                // Creación del objeto Usuario y registro, activo y no baneado
                 val usuario = Usuario(correo, nombre, nick, baneado = false, activo = true, telefonos, direccion)
                 usuarioService.registrarUsuario(usuario)
             }
@@ -82,6 +85,7 @@ fun main() {
                 println("Ingrese las etiquetas de la noticia (separadas por coma):")
                 val tags = readln().split(",").map { it.trim() }
 
+                // Creación del objeto Noticia y publicación
                 val noticia = Noticia(titulo = titulo, cuerpo = cuerpo, autor = autor, tags = tags)
                 noticiaService.publicarNoticia(noticia)
             }
@@ -94,6 +98,7 @@ fun main() {
                 println("Ingrese el texto del comentario:")
                 val texto = readln()
 
+                // Creación del objeto Comentario y publicación
                 val comentario = Comentario(usuario = usuario, noticiaId = tituloNoticia, texto = texto)
                 comentarioService.publicarComentario(comentario)
             }
@@ -120,11 +125,10 @@ fun main() {
                 noticiaService.listarUltimasNoticias()
             }
             "8" -> {
-                // Cambiar estado de un usuario (solo un administrador)
+                // Cambiar estado de un usuario con las credenciales del admin
                 println("Ingrese el correo del administrador:")
                 val correoAdmin = readln()
                 if (correoAdmin == adminCorreo) {
-                    // Solicitar la contraseña del administrador
                     println("Ingrese la contraseña del administrador:")
                     val contrasenaAdmin = readln()
                     if (contrasenaAdmin == adminContrasena) {
@@ -134,7 +138,7 @@ fun main() {
                         val accion = readln()
 
                         when (accion.lowercase()) {
-                            "banned" -> usuarioService.banearUsuario(correoUsuario)
+                            "ban" -> usuarioService.banearUsuario(correoUsuario)
                             "unban" -> usuarioService.desbanearUsuario(correoUsuario)
                             else -> println("Acción no válida.")
                         }
