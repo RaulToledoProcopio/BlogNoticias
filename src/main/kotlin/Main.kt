@@ -21,7 +21,7 @@ fun main() {
     // Creación de servicios, inyectando los repositorios
     val usuarioService = UsuarioService(usuarioRepository)
     val noticiaService = NoticiaService(noticiaRepository, usuarioRepository)
-    val comentarioService = ComentariosService(comentariosRepository)
+    val comentarioService = ComentariosService(comentariosRepository, usuarioRepository)
 
     // Credenciales del administrador
     val adminCorreo = "pruebaadmin@admin.com"
